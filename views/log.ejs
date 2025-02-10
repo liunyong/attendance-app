@@ -35,13 +35,13 @@
         <% const dayOfWeek = new Date(date).toLocaleDateString("en-US", { weekday: "long" }); %>
         <div class="date-group">
           <h2><%= date %> (<%= dayOfWeek %>)</h2>
-          <h3>Before 07:30</h3>
+          <h4>Before 07:30</h4>
           <ul>
             <% groupedLogs[date].before730.forEach(function(log) { %>
               <li class="employee-log"><%= log.employee_name %> - <%= log.check_in_time.slice(11) %></li>
             <% }); %>
           </ul>
-          <h3>After 07:30</h3>
+          <h4>After 07:30</h4>
           <ul>
             <% groupedLogs[date].after730.forEach(function(log) { %>
               <li class="employee-log"><%= log.employee_name %> - <%= log.check_in_time.slice(11) %></li>

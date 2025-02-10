@@ -59,18 +59,33 @@
     <a href="/log">View Log</a> <!-- Changed link text -->
     <script>
         function updateTime() {
-            const options = { 
+            // 각 정보를 위한 옵션 정의
+            const dateOptions = { 
                 timeZone: "Asia/Shanghai",
-                weekday: "long",    // 요일을 long 형식(예: Monday)으로 표시
                 year: 'numeric', 
                 month: '2-digit', 
-                day: '2-digit', 
+                day: '2-digit'
+            };
+            const timeOptions = { 
+                timeZone: "Asia/Shanghai",
                 hour:'2-digit', 
                 minute:'2-digit', 
                 second:'2-digit', 
                 hour12: false 
             };
-            const now = new Date().toLocaleString("sv-SE", options);
+            // 요일은 약식(short)으로 얻음 (예: Mon)
+            const weekdayOptions = {
+                timeZone: "Asia/Shanghai",
+                weekday: 'short'
+            };
+
+            const nowDate = new Date();
+            const dateStr = nowDate.toLocaleDateString("sv-SE", dateOptions); // "YYYY-MM-DD" 형식
+            const timeStr = nowDate.toLocaleTimeString("sv-SE", timeOptions); // "HH:mm:ss"
+            const weekdayStr = nowDate.toLocaleDateString("en-US", weekdayOptions); // "Mon" 형식
+
+            // 원하는 형식: YYYY-MM-DD (Mon) HH:mm:ss
+            const now = `${dateStr} (${weekdayStr}) ${timeStr}`;
             document.getElementById("currentDateTime").innerText = now;
         }
         updateTime();
