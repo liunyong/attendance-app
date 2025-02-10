@@ -154,3 +154,23 @@ app.post('/reset', (req, res) => {
 app.listen(port, () => {
   console.log(`Attendance app listening on port ${port}`);
 });
+
+<script>
+    function updateTime() {
+        const options = { 
+            timeZone: "Asia/Shanghai",
+            weekday: "long",    // 요일을 long 형식(예: Monday)으로 표시
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour:'2-digit', 
+            minute:'2-digit', 
+            second:'2-digit', 
+            hour12: false 
+        };
+        const now = new Date().toLocaleString("sv-SE", options);
+        document.getElementById("currentDateTime").innerText = now;
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+</script>

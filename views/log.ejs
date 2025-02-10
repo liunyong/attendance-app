@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Added for responsiveness -->
-    <title>Log</title>
+    <title>Attendance Log</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 10px; }
         h1, h2, h3 { text-align: center; }
@@ -15,10 +15,12 @@
             body { padding: 5px; font-size: 14px; }
             li { padding: 6px; }
         }
+        .date-group { margin-bottom: 20px; }
+        .employee-log { margin-left: 20px; }
     </style>
 </head>
 <body>
-    <h1>Log</h1>
+    <h1>Attendance Log</h1>
     <!-- New accumulated late count section -->
     <% if (lateCounts && Object.keys(lateCounts).length) { %>
       <h2>Latecomers</h2>
@@ -30,23 +32,22 @@
     <% } %>
     <% if (groupedLogs && Object.keys(groupedLogs).length) { %>
       <% Object.keys(groupedLogs).forEach(function(date) { %>
-        <h2><%= date %></h2>
-        <% if (groupedLogs[date].after730.length) { %>
-          <h4>Late</h4>
-          <ul>
-            <% groupedLogs[date].after730.forEach(function(log) { %>
-              <li><%= log.employee_name %> - <%= log.check_in_time %></li>
-            <% }); %>
-          </ul>
-        <% } %>
-        <% if (groupedLogs[date].before730.length) { %>
-          <h4>Before 7:30</h4>
+        <% const dayOfWeek = new Date(date).toLocaleDateString("en-US", { weekday: "long" }); %>
+        <div class="date-group">
+          <h2><%= date %> (<%= dayOfWeek %>)</h2>
+          <h3>Before 07:30</h3>
           <ul>
             <% groupedLogs[date].before730.forEach(function(log) { %>
-              <li><%= log.employee_name %> - <%= log.check_in_time %></li>
+              <li class="employee-log"><%= log.employee_name %> - <%= log.check_in_time.slice(11) %></li>
             <% }); %>
           </ul>
-        <% } %>
+          <h3>After 07:30</h3>
+          <ul>
+            <% groupedLogs[date].after730.forEach(function(log) { %>
+              <li class="employee-log"><%= log.employee_name %> - <%= log.check_in_time.slice(11) %></li>
+            <% }); %>
+          </ul>
+        </div>
       <% }); %>
     <% } else { %>
       <p>No attendance records found.</p>
