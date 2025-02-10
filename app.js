@@ -38,15 +38,29 @@ db.serialize(() => {
     )
   `);
 
-  // Insert sample employees only if
-  // the employees table is still empty.
+  // Insert sample employees only if the employees table is still empty.
   db.get("SELECT COUNT(*) AS count FROM employees", (err, row) => {
     if (err) {
       console.error("Counting employees failed", err);
     } else if (row.count === 0) {
       const stmt = db.prepare("INSERT INTO employees (name) VALUES (?)");
-      ["Alice", "Bob", "Charlie", "Diana"].forEach(name => {
-          stmt.run(name);
+      [
+        "Alex Lee",
+        "Chloe Kim",
+        "Erin Song",
+        "Esther Song",
+        "Hannah",
+        "Jake Moon",
+        "Kennah",
+        "Minji Lee",
+        "Neo Li",
+        "Paulina",
+        "Sarah Song",
+        "Seong Yoon",
+        "Soo Lee",
+        "Steve Lee"
+      ].forEach(name => {
+        stmt.run(name);
       });
       stmt.finalize();
     }
