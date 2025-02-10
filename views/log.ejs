@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Added for responsiveness -->
+    <title>Log</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 10px; }
+        h1, h2, h3 { text-align: center; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 8px; border-bottom: 1px solid #ccc; }
+        /* Responsive table adjustments if needed */
+        table { width: 100%; border-collapse: collapse; }
+        @media (max-width: 600px) {
+            body { padding: 5px; font-size: 14px; }
+            li { padding: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Log</h1>
+    <!-- New accumulated late count section -->
+    <% if (lateCounts && Object.keys(lateCounts).length) { %>
+      <h2>Latecomers</h2>
+      <ul>
+        <% Object.keys(lateCounts).forEach(function(emp) { %>
+          <li><%= emp %>: <%= lateCounts[emp] %></li>
+        <% }); %>
+      </ul>
+    <% } %>
+    <% if (groupedLogs && Object.keys(groupedLogs).length) { %>
+      <% Object.keys(groupedLogs).forEach(function(date) { %>
+        <h2><%= date %></h2>
+        <% if (groupedLogs[date].after730.length) { %>
+          <h4>Late</h4>
+          <ul>
+            <% groupedLogs[date].after730.forEach(function(log) { %>
+              <li><%= log.employee_name %> - <%= log.check_in_time %></li>
+            <% }); %>
+          </ul>
+        <% } %>
+        <% if (groupedLogs[date].before730.length) { %>
+          <h4>Before 7:30</h4>
+          <ul>
+            <% groupedLogs[date].before730.forEach(function(log) { %>
+              <li><%= log.employee_name %> - <%= log.check_in_time %></li>
+            <% }); %>
+          </ul>
+        <% } %>
+      <% }); %>
+    <% } else { %>
+      <p>No attendance records found.</p>
+    <% } %>
+
+    <% if (notChecked && notChecked.length) { %>
+        <h4>Not Checked In Today</h4>
+        <ul>
+          <% notChecked.forEach(function(emp) { %>
+              <li><%= emp.name %></li>
+          <% }); %>
+        </ul>
+    <% } %>
+    <br>
+    <a href="/">Back</a>
+</body>
+</html>

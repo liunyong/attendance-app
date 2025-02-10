@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Added for responsiveness -->
+    <title>Check-In</title> <!-- Changed title -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
+        }
+        label, select, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+        }
+        a {
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            form {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Check-In</h1> <!-- Changed header -->
+    <!-- Replaced static date/time with a dynamic container -->
+    <p style="text-align:center;">Current Date & Time: <span id="currentDateTime"></span></p> <!-- Changed text -->
+    <form id="checkinForm" action="/checkin" method="post">
+        <label for="employee">Select Name:</label> <!-- Changed label -->
+        <select name="employee" id="employee" required>
+            <% employees.forEach(function(emp){ %>
+                <option value="<%= emp.name %>"><%= emp.name %></option>
+            <% }); %>
+        </select>
+        <button type="submit">Check In</button> <!-- Changed button text -->
+    </form>
+    <br>
+    <a href="/log">View Log</a> <!-- Changed link text -->
+    <script>
+        function updateTime() {
+            const options = { timeZone: "Asia/Shanghai", year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12: false };
+            const now = new Date().toLocaleString("sv-SE", options);
+            document.getElementById("currentDateTime").innerText = now;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Intercept form submission
+        document.getElementById("checkinForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new URLSearchParams(new FormData(form));
+            fetch(form.action, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert(data.message);
+                    // Remove selected employee from dropdown
+                    const select = document.getElementById("employee");
+                    const selectedVal = select.value;
+                    const optionToRemove = select.querySelector('option[value="'+selectedVal+'"]');
+                    if(optionToRemove) {
+                        optionToRemove.remove();
+                    }
+                    // If no employees left, disable form
+                    if(select.options.length === 0){
+                        form.querySelector("button").disabled = true;
+                    }
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(() => alert("An error occurred."));
+        });
+    </script>
+</body>
+</html>
