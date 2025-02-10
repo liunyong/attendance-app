@@ -21,6 +21,17 @@
 </head>
 <body>
     <h1>Attendance Log</h1>
+    
+    <!-- Not Checked In Today section moved to top -->
+    <% if (notChecked && notChecked.length) { %>
+        <h4>Not Checked In Today</h4>
+        <ul>
+          <% notChecked.forEach(function(emp) { %>
+              <li><%= emp.name %></li>
+          <% }); %>
+        </ul>
+    <% } %>
+    
     <!-- New accumulated late count section -->
     <% if (lateCounts && Object.keys(lateCounts).length) { %>
       <h2>Latecomers</h2>
@@ -30,6 +41,7 @@
         <% }); %>
       </ul>
     <% } %>
+    
     <% if (groupedLogs && Object.keys(groupedLogs).length) { %>
       <% Object.keys(groupedLogs).forEach(function(date) { %>
         <% const dayOfWeek = new Date(date).toLocaleDateString("en-US", { weekday: "long" }); %>
@@ -53,14 +65,6 @@
       <p>No attendance records found.</p>
     <% } %>
 
-    <% if (notChecked && notChecked.length) { %>
-        <h4>Not Checked In Today</h4>
-        <ul>
-          <% notChecked.forEach(function(emp) { %>
-              <li><%= emp.name %></li>
-          <% }); %>
-        </ul>
-    <% } %>
     <br>
     <!-- Reset Logs Form -->
     <form action="/reset" method="post" style="text-align: center;">
