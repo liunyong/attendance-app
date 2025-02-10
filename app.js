@@ -96,12 +96,18 @@ app.post('/checkin', (req, res) => {
 
 // 로그 페이지: 모든 출석 체크 기록 표시
 app.get('/log', (req, res) => {
-  const currentDate = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Shanghai", hour12: false }).slice(0,10);
+  if (req.query.password !== "WanbangSchool") {
+    return res.status(401).send("Unauthorized: Incorrect password");
+  }
+  
+  // 기존의 로그 조회 코드 (예: groupedLogs, notChecked 등 생성)
   db.all("SELECT * FROM attendance ORDER BY check_in_time DESC", (err, rows) => {
       if (err) {
           res.status(500).send("데이터베이스 오류");
       } else {
-          // 그룹화: 날짜별로 07:30 이전/이후 분리
+          // 그룹화 및 누적 계산 등 기존 코드...
+          // 조회: 오늘 미 체크인 직원
+          const currentDate = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Shanghai", hour12: false }).slice(0,10);
           const groupedLogs = rows.reduce((acc, row) => {
               const date = row.check_in_time.slice(0, 10);
               if (!acc[date]) {
@@ -115,7 +121,6 @@ app.get('/log', (req, res) => {
               }
               return acc;
           }, {});
-          // 누적 지각 카운트 계산
           const lateCounts = {};
           rows.forEach(row => {
               const timePart = row.check_in_time.slice(11, 16);
@@ -123,7 +128,6 @@ app.get('/log', (req, res) => {
                   lateCounts[row.employee_name] = (lateCounts[row.employee_name] || 0) + 1;
               }
           });
-          // 조회: 오늘 미 체크인 직원
           db.all("SELECT * FROM employees WHERE name NOT IN (SELECT employee_name FROM attendance WHERE check_in_time LIKE ?)", [currentDate + '%'], (err2, notChecked) => {
               if (err2) {
                   res.status(500).send("데이터베이스 오류");
