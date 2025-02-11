@@ -114,7 +114,7 @@ app.get('/log', (req, res) => {
                   acc[date] = { before730: [], after730: [] };
               }
               const timePart = row.check_in_time.slice(11, 16);
-              if (timePart > "08:00") {
+              if (timePart > "07:30") {
                   acc[date].after730.push(row);
               } else {
                   acc[date].before730.push(row);
@@ -124,7 +124,7 @@ app.get('/log', (req, res) => {
           const lateCounts = {};
           rows.forEach(row => {
               const timePart = row.check_in_time.slice(11, 16);
-              if (timePart > "08:00") {
+              if (timePart > "07:30") {
                   lateCounts[row.employee_name] = (lateCounts[row.employee_name] || 0) + 1;
               }
           });
