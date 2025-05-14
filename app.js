@@ -45,20 +45,7 @@ db.serialize(() => {
     } else if (row.count === 0) {
       const stmt = db.prepare("INSERT INTO employees (name) VALUES (?)");
       [
-        "Alex Lee",
-        "Chloe Kim",
-        "Erin Song",
-        "Esther Song",
-        "Hannah",
-        "Jake Moon",
-        "Kennah",
-        "Minji Lee",
-        "Neo Li",
-        "Paulina",
-        "Sarah Song",
-        "Seong Yoon",
-        "Soo Lee",
-        "Steve Lee"
+        "Harry Potter"
       ].forEach(name => {
         stmt.run(name);
       });
