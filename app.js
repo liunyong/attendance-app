@@ -19,7 +19,7 @@ const app = express();
 const port = 3000;
 const MONGO_URI_FILE = path.join(__dirname, 'mongoUri.json');
 
-const allowedIPs = ["111.40.0.32", "127.0.0.1", "::1", "::ffff:127.0.0.1"]; 
+const allowedIPs = ["127.0.0.1", "::1", "::ffff:127.0.0.1"]; 
 
 app.use((req, res, next) => {
   const clientIP =
