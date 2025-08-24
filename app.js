@@ -197,7 +197,7 @@ app.post('/register-teacher', async (req, res) => {
   if (exists) return res.json({ success: false, message: "This name is already registered." });
 
   const hash = await bcrypt.hash(password, 10);
-  await Teacher.create({ name, excused: !!excused, password: hash });
+  await Teacher.create({ name, excused: !!excused, password: hash }); // !!excused forcing format change to boolean
   res.json({ success: true, message: "Teacher has been registered." });
 });
 
