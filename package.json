@@ -1,7 +1,7 @@
 {
   "name": "attendance-app",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,9 +10,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "body-parser": "^1.20.3",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
-    "sqlite3": "^5.1.7"
+    "express-session": "^1.18.2",
+    "fs": "^0.0.1-security",
+    "mongoose": "^8.18.0",
+    "node-cron": "^4.2.1"
   }
 }

@@ -2,77 +2,86 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Added for responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Attendance Log</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 10px; }
         h1, h2, h3 { text-align: center; }
         ul { list-style: none; padding: 0; }
         li { padding: 8px; border-bottom: 1px solid #ccc; }
-        /* Responsive table adjustments if needed */
-        table { width: 100%; border-collapse: collapse; }
-        @media (max-width: 600px) {
-            body { padding: 5px; font-size: 14px; }
-            li { padding: 6px; }
-        }
-        .date-group { margin-bottom: 20px; }
-        .employee-log { margin-left: 20px; }
+        .modal { display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); justify-content:center; align-items:center; }
+        .modal-content { background:#fff; padding:20px; border-radius:8px; min-width:300px; }
     </style>
 </head>
 <body>
     <h1>Attendance Log</h1>
-    
-    <!-- Not Checked In Today section moved to top -->
-    <% if (notChecked && notChecked.length) { %>
-        <h4>Not Checked In Today</h4>
-        <ul>
-          <% notChecked.forEach(function(emp) { %>
-              <li><%= emp.name %></li>
-          <% }); %>
-        </ul>
-    <% } %>
-    
-    <!-- New accumulated late count section -->
-    <% if (lateCounts && Object.keys(lateCounts).length) { %>
-      <h2>Latecomers</h2>
+
+    <% if (lateSummary && lateSummary.length) { %>
+      <h2>Latecomers (Accumulated)</h2>
       <ul>
-        <% Object.keys(lateCounts).forEach(function(emp) { %>
-          <li><%= emp %>: <%= lateCounts[emp] %></li>
+        <% lateSummary.forEach(function(teacher) { %>
+          <li>
+            <strong><%= teacher.name %></strong> - <%= teacher.count %> times
+            <ul>
+              <% teacher.details.forEach(function(detail) { %>
+                <li>
+                  <%= detail.date %>
+                  <% if (detail.notAttended) { %>
+                    : <span style="color:red;">not attended</span>
+                  <% } else { %>
+                    : <%= detail.time %>
+                  <% } %>
+                </li>
+              <% }); %>
+            </ul>
+          </li>
         <% }); %>
       </ul>
-    <% } %>
-    
-    <% if (groupedLogs && Object.keys(groupedLogs).length) { %>
-      <% Object.keys(groupedLogs).forEach(function(date) { %>
-        <% const dayOfWeek = new Date(date).toLocaleDateString("en-US", { weekday: "long" }); %>
-        <div class="date-group">
-          <h2><%= date %> (<%= dayOfWeek %>)</h2>
-          <h4>Before 07:30</h4>
-          <ul>
-            <% groupedLogs[date].before730.forEach(function(log) { %>
-              <li class="employee-log"><%= log.employee_name %> - <%= log.check_in_time.slice(11) %></li>
-            <% }); %>
-          </ul>
-          <h4>After 07:30</h4>
-          <ul>
-            <% groupedLogs[date].after730.forEach(function(log) { %>
-              <li class="employee-log"><%= log.employee_name %> - <%= log.check_in_time.slice(11) %></li>
-            <% }); %>
-          </ul>
-        </div>
-      <% }); %>
     <% } else { %>
-      <p>No attendance records found.</p>
+      <p style="text-align:center;">No latecomers recorded.</p>
     <% } %>
 
     <br>
     <!-- Reset Logs Form -->
     <form action="/reset" method="post" style="text-align: center;">
-      <label for="password">Reset Logs Password:</label>
-      <input type="password" id="password" name="password" required>
-      <button type="submit">Reset Logs</button>
+        <label for="password">Reset Logs Password:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Reset Logs</button>
     </form>
     <br>
+    <button onclick="document.getElementById('adminRegModal').style.display='flex'">Register Admin</button>
+    <div id="adminRegModal" class="modal" onclick="if(event.target===this)this.style.display='none'">
+      <div class="modal-content">
+        <h2>Register Admin</h2>
+        <form id="adminRegisterForm">
+          <label>ID: <input type="text" name="id" required></label><br>
+          <label>Password: <input type="password" name="password" required></label><br>
+          <button type="submit">Register</button>
+          <button type="button" onclick="document.getElementById('adminRegModal').style.display='none'">Cancel</button>
+        </form>
+        <div id="adminRegMsg"></div>
+      </div>
+    </div>
+    <br>
     <a href="/">Back</a>
+    <script>
+      // Admin registration
+      document.getElementById('adminRegisterForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = {
+          id: form.id.value,
+          password: form.password.value
+        };
+        const res = await fetch('/register-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        document.getElementById('adminRegMsg').innerText = result.message;
+        if(result.success) form.reset();
+      };
+    </script>
 </body>
 </html>
