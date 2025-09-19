@@ -31,18 +31,16 @@ function readAllowedIPs() {
       return DEFAULT_IPS;
     }
   } else {
-    // 파일이 없으면 생성
     const obj = {
       localv4: "127.0.0.1",
-      localv6: "::1",
-      localv6tov4: "::ffff:127.0.0.1"
+      localv6: "::1"
     };
     fs.writeFileSync(IPLIST_FILE, JSON.stringify(obj, null, 2), 'utf-8');
     console.log('iplist.json is generated, please add your school IP if needed.');
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
     rl.question('Enter the IP address (No just Enter): ', (ip) => {
       if (ip && ip.trim()) {
-        obj.School = ip.trim();
+        obj.School = "::ffff:" + ip.trim();
         fs.writeFileSync(IPLIST_FILE, JSON.stringify(obj, null, 2), 'utf-8');
         console.log('IP is added to iplist.json');
       }
@@ -54,12 +52,20 @@ function readAllowedIPs() {
 
 const allowedIPs = readAllowedIPs();
 
+function normalizeIP(ip) {
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) {
+    return `::ffff:${ip}`;
+  }
+  return ip;
+}
+
 app.use((req, res, next) => {
   const clientIP =
     req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+  const normalizedIP = normalizeIP(clientIP);
 
-  if (allowedIPs.includes(clientIP)) {
-    next(); // allowed IP -> next router
+  if (allowedIPs.includes(normalizedIP)) {
+    next();
   } else {
     console.log(`Access denied: ${clientIP}`)
     res.status(403).send("Access denied: Your network is not allowed. Please connect to WB Faculty Wifi.");
@@ -205,7 +211,7 @@ app.post('/checkin', async (req, res) => {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-    numberingSystem: 'latn',   // 0-9 보장 (안전)
+    numberingSystem: 'latn',
   });
   const lateLimit = teacherObj.excused ? "07:40" : "07:30";
   const isLate = timeStr > lateLimit;
@@ -274,6 +280,26 @@ app.get('/', async (req, res) => {
   const teachers = await Teacher.find({});
   res.render('checkin', { teachers });
 });
+
+// Auto late: everyday 7:41 Asia/Shanghai
+cron.schedule('41 7 * * 1-6', async () => {
+  const currentDate = ymdInTZ(TZ);
+  const teachers = await Teacher.find({});
+  const now = new Date();
+  for (const teacher of teachers) {
+    const already = await Log.findOne({ name: teacher.name, date: currentDate });
+    if (!already) {
+      await Log.create({
+        name: teacher.name,
+        check_in_time: now,
+        late: true,
+        notAttended: true,
+        date: currentDate
+      });
+      console.log(`[AUTO] ${teacher.name} marked as late for ${currentDate}`);
+    }
+  }
+}, { timezone: TZ });
 
 // Start server
 function startServer() {
