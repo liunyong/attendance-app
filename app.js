@@ -50,7 +50,8 @@ function readAllowedIPs() {
   }
 }
 
-const allowedIPs = readAllowedIPs();
+const allowedIPsRaw = readAllowedIPs();
+const allowedIPs = allowedIPsRaw.map(normalizeIP); // 모든 IP를 IPv6-mapped로 변환
 
 function normalizeIP(ip) {
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) {
@@ -67,7 +68,7 @@ app.use((req, res, next) => {
   if (allowedIPs.includes(normalizedIP)) {
     next();
   } else {
-    console.log(`Access denied: ${normalizedIP}`)
+    console.log(`Access denied: ${clientIP}`)
     res.status(403).send("Access denied: Your network is not allowed. Please connect to WB Faculty Wifi.");
   }
 });
