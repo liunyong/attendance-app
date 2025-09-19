@@ -18,8 +18,41 @@ function ymdInTZ(tz, d = new Date()) {
 const app = express();
 const port = 3000;
 const MONGO_URI_FILE = path.join(__dirname, 'mongoUri.json');
+const IPLIST_FILE = path.join(__dirname, 'iplist.json');
+const DEFAULT_IPS = ["127.0.0.1", "::1", "::ffff:127.0.0.1"];
 
-const allowedIPs = ["127.0.0.1", "::1", "::ffff:127.0.0.1"]; 
+function readAllowedIPs() {
+  if (fs.existsSync(IPLIST_FILE)) {
+    try {
+      const data = fs.readFileSync(IPLIST_FILE, 'utf-8');
+      const obj = JSON.parse(data);
+      return Object.values(obj);
+    } catch (e) {
+      return DEFAULT_IPS;
+    }
+  } else {
+    // 파일이 없으면 생성
+    const obj = {
+      localv4: "127.0.0.1",
+      localv6: "::1",
+      localv6tov4: "::ffff:127.0.0.1"
+    };
+    fs.writeFileSync(IPLIST_FILE, JSON.stringify(obj, null, 2), 'utf-8');
+    console.log('iplist.json is generated, please add your school IP if needed.');
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    rl.question('Enter the IP address (No just Enter): ', (ip) => {
+      if (ip && ip.trim()) {
+        obj.School = ip.trim();
+        fs.writeFileSync(IPLIST_FILE, JSON.stringify(obj, null, 2), 'utf-8');
+        console.log('IP is added to iplist.json');
+      }
+      rl.close();
+    });
+    return Object.values(obj);
+  }
+}
+
+const allowedIPs = readAllowedIPs();
 
 app.use((req, res, next) => {
   const clientIP =
