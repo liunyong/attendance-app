@@ -19,7 +19,7 @@ const app = express();
 const port = 3000;
 const MONGO_URI_FILE = path.join(__dirname, 'mongoUri.json');
 const IPLIST_FILE = path.join(__dirname, 'iplist.json');
-const DEFAULT_IPS = ["127.0.0.1", "::1", "::ffff:127.0.0.1"];
+const DEFAULT_IPS = ["127.0.0.1", "::1"];
 
 function readAllowedIPs() {
   if (fs.existsSync(IPLIST_FILE)) {
@@ -40,7 +40,7 @@ function readAllowedIPs() {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
     rl.question('Enter the IP address (No just Enter): ', (ip) => {
       if (ip && ip.trim()) {
-        obj.School = "::ffff:" + ip.trim();
+        obj.School = ip.trim();
         fs.writeFileSync(IPLIST_FILE, JSON.stringify(obj, null, 2), 'utf-8');
         console.log('IP is added to iplist.json');
       }
