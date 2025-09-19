@@ -67,7 +67,7 @@ app.use((req, res, next) => {
   if (allowedIPs.includes(normalizedIP)) {
     next();
   } else {
-    console.log(`Access denied: ${clientIP}`)
+    console.log(`Access denied: ${normalizedIP}`)
     res.status(403).send("Access denied: Your network is not allowed. Please connect to WB Faculty Wifi.");
   }
 });
